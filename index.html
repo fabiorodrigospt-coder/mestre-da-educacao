@@ -116,6 +116,7 @@ html[data-sticky="off"] .stickytop{position:relative}
 .cloud-details{font-size:12px;color:var(--muted);margin:8px 0 10px}.cloud-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.cloud-actions button{width:auto;flex:1 1 150px}
 @media(max-width:550px){.topnav .container{flex-wrap:wrap;gap:7px}.topnav .ticker{max-width:100%}.account-menu{margin-left:auto}.auth-overlay{align-items:flex-start}.auth-panel{margin:auto}}
 </style>
+<link rel="stylesheet" href="./pvp.css">
 </head>
 <body>
 <div class="auth-overlay" id="authOverlay" role="dialog" aria-modal="true" aria-labelledby="authTitle">
@@ -188,7 +189,7 @@ const MAX_OFFLINE=30*60*1000,DAY_MS=150000,ENERGY_MS=14000,HEAT_MS=28000;
 const attrNames={intelligence:'Didática',strength:'Domínio',charisma:'Carisma',resistance:'Paciência'};
 const attrShort={intelligence:'DID',strength:'DOM',charisma:'CAR',resistance:'PAC'};
 const fmt=new Intl.NumberFormat('pt-BR',{maximumFractionDigits:0});
-const NAV=[['crimes','📚','Aulas'],['arena','🎤','Debates'],['gang','👥','Equipe'],['business','🏫','Negócios'],['market','📖','Livraria'],['night','☕','Descanso'],['bank','🏦','Banco'],['territories','🗺️','Escolas'],['bosses','🎓','Grandes Desafios'],['skills','📈','Habilidades'],['daily','🎁','Prêmios'],['auction','⚖️','Leilão'],['missions','🏆','Missões'],['profile','★','Carreira']];
+const NAV=[['crimes','📚','Aulas'],['arena','🎤','Debates'],['pvp','⚔️','PvP online'],['gang','👥','Equipe'],['business','🏫','Negócios'],['market','📖','Livraria'],['night','☕','Descanso'],['bank','🏦','Banco'],['territories','🗺️','Escolas'],['bosses','🎓','Grandes Desafios'],['skills','📈','Habilidades'],['daily','🎁','Prêmios'],['auction','⚖️','Leilão'],['missions','🏆','Missões'],['profile','★','Carreira']];
 const PAGE={
  crimes:['Sala de aula','Aulas','Dê aulas, ganhe salário e reputação. Observe a chance de sucesso, a energia e os requisitos antes de começar.'],
  arena:['Duelo contra professores fictícios','Debates · Professores rivais','Dispute debates por turnos contra professores simulados pelo jogo. Não há outros jogadores online.'],
@@ -1226,7 +1227,7 @@ function renderCrewEvolution(){const roster=s.members;
 function render(){ensureSubject();renderHud();renderSide();document.getElementById('desktopNav').innerHTML=navHtml();document.getElementById('mobileNav').innerHTML=navHtml();const [eyebrow,title,lead]=PAGE[tab];document.getElementById('pageEyebrow').textContent=eyebrow;document.getElementById('pageTitle').textContent=title;document.getElementById('pageLead').textContent=lead;
  const ev=eventNow();document.getElementById('tickerText').textContent=ev.title+' — '+ev.desc;document.getElementById('newsBox').innerHTML=`<span aria-hidden="true">📰</span><p><strong>EDUNEWS · DIA ${day()} — ${esc(ev.title.toUpperCase())}:</strong> ${esc(ev.desc)}</p>`;
  document.getElementById('content').innerHTML={crimes:renderCrimes,arena:renderArena,gang:renderGang,business:renderBusiness,market:renderMarket,night:renderNight,bank:renderBank,territories:renderTerritories,bosses:renderBosses,skills:renderSkills,daily:renderDaily,auction:renderAuction,missions:renderMissions,profile:renderProfile}[tab]();}
-function goTab(id){if(!PAGE[id])return;if(s.bosses?.battle&&id!=='bosses'){toast('Finalize a luta contra o desafio.',true);return;}if(s.arena?.battle&&id!=='arena'){toast('Finalize o duelo da arena.',true);return;}tab=id;render();if(window.innerWidth<751)document.getElementById('content').scrollIntoView({block:'start',behavior:'instant'});}
+function goTab(id){if(id==='pvp'){window.GamePvp?.open();return;}if(!PAGE[id])return;if(s.bosses?.battle&&id!=='bosses'){toast('Finalize a luta contra o desafio.',true);return;}if(s.arena?.battle&&id!=='arena'){toast('Finalize o duelo da arena.',true);return;}tab=id;render();if(window.innerWidth<751)document.getElementById('content').scrollIntoView({block:'start',behavior:'instant'});}
 let previousDay=day();
 function claimLock(){try{const now=Date.now(),l=JSON.parse(localStorage.getItem(LOCK_KEY)||'null');if(l&&l.id!==TAB_ID&&now-l.t<6000){readOnly=true;}else{if(readOnly){readOnly=false;s=load();render();}localStorage.setItem(LOCK_KEY,JSON.stringify({id:TAB_ID,t:now}));}}catch(e){}}
 function liveNeeded(){
@@ -1700,4 +1701,6 @@ claimLock();render();setInterval(tick,1000);
 </script>
 <script src="./config.js"></script>
 <script src="./cloud.js"></script>
+<script src="./pvp.js"></script>
 </body></html>
+
