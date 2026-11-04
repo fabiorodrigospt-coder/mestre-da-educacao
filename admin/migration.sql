@@ -228,10 +228,13 @@ begin
        if jsonb_typeof(v_value->v_subkey)<>'number' then raise exception 'Atributo não numérico';end if;
        v_number := (v_value->>v_subkey)::numeric;
        if v_number<0 or v_number>1000 then raise exception 'Atributo fora do intervalo 0-1000';end if;
-       v_before:=jsonb_set(v_before,array['attributes',v_subkey],
-          coalesce(v_original#>array['attributes',v_subkey],'null'::jsonb),true);
+       v_before:=jsonb_set(v_before,'{attributes}',
+          coalesce(v_before->'attributes','{}'::jsonb) ||
+          jsonb_build_object(v_subkey,coalesce(v_original#>array['attributes',v_subkey],'null'::jsonb)),true);
        v_next:=jsonb_set(v_next,array['attributes',v_subkey],to_jsonb(v_number),true);
-       v_after:=jsonb_set(v_after,array['attributes',v_subkey],to_jsonb(v_number),true);
+       v_after:=jsonb_set(v_after,'{attributes}',
+          coalesce(v_after->'attributes','{}'::jsonb) ||
+          jsonb_build_object(v_subkey,to_jsonb(v_number)),true);
      end loop;
    else
      if v_key not in ('money','bank','respect','energy','heat','xp','arena_rating')
