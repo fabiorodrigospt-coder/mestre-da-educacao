@@ -40,10 +40,12 @@
 <hr style="border:0;border-top:1px solid var(--line);margin:22px 0">
 <h3>Moderação de acesso</h3><p class="muted">Suspensões e banimentos impedem acesso às partidas na nuvem. A versão offline só é verificada ao reconectar.</p>
 <div class="actions"><button id="suspend" type="button" disabled>Suspender por período</button><button id="ban" type="button" class="danger" disabled>Banir</button><button id="unban" type="button" disabled>Reativar</button></div>
+<div class="actions"><button id="activityBtn" type="button" disabled>Ver atividade e estratégias</button></div>
 <p id="moderationInfo" class="muted"></p>
 </section>
 </div>
 <section class="panel" id="historyPanel" hidden><div class="headingline"><h2>Histórico administrativo</h2><button class="small" id="closeHistory">Fechar</button></div><div id="history"></div></section>
+<section class="panel" id="activityPanel" hidden><div class="headingline"><h2 id="activityTitle">Atividade do jogador</h2><button id="closeActivity" class="small">Fechar</button></div><p id="activityNotice" class="muted"></p><div id="activitySummary" class="notice"></div><div class="actions"><button id="activityRefresh">Atualizar histórico</button><button id="activityMore" disabled>Carregar anteriores</button></div><div id="activityPvp"></div><div id="activityEvents"></div></section>
 <p class="foot">Painel protegido por permissões no servidor. A URL por si só não concede acesso. Não é adequado para uma competição anti-trapaça sem validação de jogadas no servidor.</p>
 </main>
 </div>
