@@ -42,7 +42,8 @@
       const data = normalize(raw.state);
       if (!data) return null;
       return { state: data, revision: Number.isSafeInteger(raw.revision) && raw.revision >= 0 ? raw.revision : 0,
-        dirty: Boolean(raw.dirty), changedAt: Number(raw.changedAt) || 0 };
+        dirty: Boolean(raw.dirty), changedAt: Number(raw.changedAt) || 0,
+        adminRevision: Number.isSafeInteger(raw.adminRevision) && raw.adminRevision >= 0 ? raw.adminRevision : 0 };
     } catch (_) { return null; }
   }
   function loadLocalState() { return record?.state ? normalize(record.state) : null; }
@@ -96,16 +97,40 @@
       user: response.user };
     storeSession();
   }
+  async function requireActiveAccount() {
+    const data = await request('/rest/v1/rpc/mestre_player_access',
+      {method:'POST', body:'{}'}, true);
+    if (!data || data.status !== 'active') {
+      const duration = data?.status==='suspended' && data.suspended_until
+        ? ' até ' + new Date(data.suspended_until).toLocaleString('pt-BR') : '';
+      const label = data?.status==='suspended' ? 'Conta suspensa' : 'Conta banida';
+      const e = new Error(label + duration + '. ' + (data?.reason || 'Entre em contato com a administração.'));
+      e.accountBlocked = true;
+      throw e;
+    }
+  }
+  function lockAccount(msg) {
+    // Uma suspensão não apaga saves locais, mas impede o uso online da conta.
+    ready=false; user=null; record=null; session=null; syncBlocked=true;
+    clearTimeout(saveTimer); storeSession();
+    OVERLAY.hidden=false;
+    $('accountMenu').hidden=true;
+    $('installNotice').hidden=true;
+    setMode('login');
+    message(msg,true);
+    status('Acesso suspenso pelo administrador.');
+  }
   async function fetchCloud() {
     const id = encodeURIComponent(user.id);
-    const rows = await request(`/rest/v1/mestre_educacao_saves?user_id=eq.${id}&select=game_state,revision,updated_at`, {method:'GET'}, true);
+    const rows = await request(`/rest/v1/mestre_educacao_saves?user_id=eq.${id}&select=game_state,revision,admin_revision,updated_at`, {method:'GET'}, true);
     if (!Array.isArray(rows)) throw new Error('Resposta inválida do banco de dados.');
     return rows[0] || null;
   }
   function takeCloud(cloud) {
     const data = normalize(cloud.game_state);
     if (!data) throw new Error('O save da nuvem está inválido. Seu progresso local não foi sobrescrito.');
-    record = {state: data, revision: Number(cloud.revision) || 1, dirty:false, changedAt: Date.now()};
+    record = {state: data, revision: Number(cloud.revision) || 1,
+      adminRevision: Number(cloud.admin_revision) || 0, dirty:false, changedAt: Date.now()};
     s = data;
     lastStateJSON = JSON.stringify(s);
     if (!storeRecord()) status('Atenção: não foi possível salvar cópia local.');
@@ -116,6 +141,18 @@
     const cloud = await fetchCloud();
     if (cloud) {
       const remoteRev = Number(cloud.revision) || 1;
+      const remoteAdminRev = Number(cloud.admin_revision) || 0;
+      if (remoteAdminRev > (record?.adminRevision || 0)) {
+        // Edições administrativas têm prioridade sobre saves offline desatualizados.
+        // Preservar cópia local anterior para diagnóstico, nunca enviá-la automaticamente.
+        if (record?.dirty) {
+          try { localStorage.setItem(localKey() + '_antes_admin_' + Date.now(), JSON.stringify(record)); } catch (_) {}
+        }
+        takeCloud(cloud);
+        syncBlocked = false;
+        status('A partida foi atualizada pelo administrador e carregada da nuvem.');
+        return;
+      }
       if (record?.dirty && record.revision !== remoteRev) {
         const useLocal = window.confirm('Há duas versões da partida: uma neste aparelho e outra na nuvem.\n\nOK = manter esta partida local e enviar à nuvem.\nCancelar = usar a partida da nuvem.\n\nExporte um backup antes de trocar de versão se tiver dúvidas.');
         if (useLocal) {
@@ -126,7 +163,7 @@
       } else if (!record || !record.dirty) { takeCloud(cloud); syncBlocked = false; }
       // Se dirty e mesma revisão, mantemos as alterações locais e enviamos depois.
     } else {
-      if (!record) record = {state: s, revision:0, dirty:true, changedAt:Date.now()};
+      if (!record) record = {state: s, revision:0, adminRevision:0, dirty:true, changedAt:Date.now()};
       record.revision = 0;
       record.dirty = true;
       storeRecord();
@@ -150,6 +187,7 @@
     const nextRev = oldRev + 1;
     status('Salvando progresso na nuvem...');
     try {
+      await requireActiveAccount();
       let updated;
       if (oldRev === 0) {
         updated = await request('/rest/v1/mestre_educacao_saves', {
@@ -159,7 +197,8 @@
       } else {
         updated = await request(`/rest/v1/mestre_educacao_saves?user_id=eq.${encodeURIComponent(user.id)}&revision=eq.${oldRev}`, {
           method:'PATCH', headers:{Prefer:'return=representation'},
-          body:JSON.stringify({game_state:JSON.parse(stateSnapshot),revision:nextRev,updated_at:new Date().toISOString()})
+          body:JSON.stringify({game_state:JSON.parse(stateSnapshot),revision:nextRev,
+            ack_admin_revision:record.adminRevision || 0,updated_at:new Date().toISOString()})
         }, true);
       }
       if (!Array.isArray(updated) || updated.length !== 1) {
@@ -176,7 +215,8 @@
       if (err.status === 409) {
         syncBlocked = true;
         status('Conflito de progresso: save local preservado. Clique em “Sincronizar / resolver conflito”.');
-      } else status('Save local preservado; não foi possível sincronizar: ' + err.message);
+      } else if (err.accountBlocked) lockAccount(err.message);
+      else status('Save local preservado; não foi possível sincronizar: ' + err.message);
     } finally { saving = false; }
   }
   function saveLocal(state) {
@@ -184,7 +224,7 @@
     try {
       const json = JSON.stringify(state);
       if (json !== lastStateJSON) {
-        if (!record) record={state:state,revision:0,dirty:true,changedAt:Date.now()};
+        if (!record) record={state:state,revision:0,adminRevision:0,dirty:true,changedAt:Date.now()};
         record.state=JSON.parse(json);
         record.dirty=true;
         record.changedAt=Date.now();
@@ -207,10 +247,11 @@
     render();
     status('Carregando a partida...');
     try {
-      if (navigator.onLine) await reconcile(true);
+      if (navigator.onLine) { await requireActiveAccount(); await reconcile(true); }
       else if (!record && !offlineAllowed) throw new Error('Primeiro login precisa de internet.');
-      else if (!record) record={state:s,revision:0,dirty:true,changedAt:Date.now()};
+      else if (!record) record={state:s,revision:0,adminRevision:0,dirty:true,changedAt:Date.now()};
     } catch (error) {
+      if (error.accountBlocked) { lockAccount(error.message); activating=false; return; }
       if (!record && !offlineAllowed) { status('Não foi possível carregar a partida: ' + error.message); message(error.message,true); activating=false; return; }
       status('Sem nuvem no momento: jogando com save local. ' + error.message);
     }
@@ -281,8 +322,8 @@
     if (!navigator.onLine) return status('Sem internet. Seu save local está preservado.');
     if (saving) return status('Sincronização em andamento...');
     status('Verificando versões na nuvem...');
-    try { syncBlocked=false; await reconcile(false); if (record?.dirty) await pushCloud(); }
-    catch (err) { status('Não foi possível consultar a nuvem: '+err.message); }
+    try { await requireActiveAccount(); syncBlocked=false; await reconcile(false); if (record?.dirty) await pushCloud(); }
+    catch (err) { if(err.accountBlocked) lockAccount(err.message); else status('Não foi possível consultar a nuvem: '+err.message); }
   }
   async function forgotPassword() {
     if (!EMAIL_RECOVERY_ENABLED) return message('Recuperação de senha por e-mail ficará disponível depois da configuração do SMTP.',true);
