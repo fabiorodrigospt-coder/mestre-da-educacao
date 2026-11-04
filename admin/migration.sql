@@ -60,7 +60,11 @@ from auth.users on conflict(user_id) do nothing;
 create or replace function private.mestre_is_admin()
 returns boolean language sql stable security definer set search_path = ''
 as $$
- select exists(select 1 from private.mestre_educacao_admins a where a.user_id=(select auth.uid()));
+ select exists(
+    select 1 from private.mestre_educacao_admins a
+    join auth.users u on u.id = a.user_id
+    where a.user_id=(select auth.uid()) and u.email_confirmed_at is not null
+ );
 $$;
 revoke all on function private.mestre_is_admin() from public, anon, authenticated;
 grant execute on function private.mestre_is_admin() to authenticated;
@@ -330,8 +334,12 @@ grant execute on function public.mestre_admin_history(uuid) to authenticated;
 
 -- PRIMEIRO ADMINISTRADOR: depois de confirmar o e-mail da conta correta,
 -- executar separadamente no SQL Editor (NÃO adivinhar o usuário):
+-- Depois de o titular CONFIRMAR o endereço e de conferir que a consulta
+-- encontra exatamente uma conta, executar separadamente:
 -- insert into private.mestre_educacao_admins(user_id)
--- select id from auth.users where email=lower('SEU_EMAIL_CONFIRMADO')
+-- select id from auth.users
+-- where lower(email)=lower('EMAIL_CONFIRMADO_PELO_TITULAR')
+--   and email_confirmed_at is not null
 -- on conflict(user_id) do nothing;
--- Verificar que exatamente UMA conta foi escolhida antes de executar.
+-- NÃO conceder privilégios a um usuário com e-mail ainda não confirmado.
 commit;
