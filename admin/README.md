@@ -1,11 +1,16 @@
-# Mestre da Educação — Painel Administrativo (teste)
+# Mestre da Educação — Painel Administrativo
 
 ## Estado da entrega
 - Painel: admin.html, admin/dashboard.js.
 - SQL de implantação: admin/migration.sql.
 - Compatibilidade dos saves: cloud.js; atualização do cache: sw.js.
-- NENHUMA mudança foi mesclada à branch principal (main).
-- O SQL da migração ainda NÃO foi executado no Supabase principal; a URL /admin.html ainda não funciona no site público.
+- Publicado em 04/11/2026 após autorização do titular: https://fabiorodrigospt-coder.github.io/mestre-da-educacao/admin.html
+- Migração aplicada no projeto wsxmrysizwetxxshxwan. Há um único administrador inicial, com e-mail verificado.
+- Backup das três partidas e das políticas anteriores mantido em tabelas privadas mestre_saves_backup_20261104_admin e mestre_policies_backup_20261104_admin; nenhum acesso de anon/authenticated.
+- As três partidas foram comparadas após a migração: estado e revisão preservados.
+- Treze verificações SQL funcionais aprovadas em transação revertida antes da ativação, incluindo RLS, moderação, auditoria e conflito de revisão.
+- Após ativação, confirmados: autorização do administrador, listagem das quatro contas e negação a anon.
+- Tela de login publicada sem erros de console; largura móvel de 390px sem overflow horizontal. Login completo e interface autenticada dependem de o titular entrar com sua senha; não foram certificados por este teste.
 
 ## Controle de acesso
 - O navegador usa somente a chave pública do Supabase.
@@ -15,7 +20,7 @@
 - Histórico registra responsável, alvo, operação, motivo e valores alterados.
 - O navegador ainda executa o jogo e mantém save local. Portanto esta versão NÃO impede trapaças nem garante bloqueio offline imediato.
 
-## Implantação — exclusivamente após aprovação para publicar
+## Procedimento de implantação e recuperação
 1. Fazer backup da base de dados do projeto Mestre da Educação.
 2. Confirmar exatamente qual conta cadastrada no jogo pertence ao administrador. Nunca escolher pelo primeiro cadastro. O campo auth.users.email_confirmed_at deve estar preenchido; uma conta ainda não verificada não recebe autorização.
 3. Aplicar a migração SQL de admin/migration.sql no projeto Supabase Mestre da Educação. Não utilizar nenhum projeto do Guedes Hub.
@@ -39,4 +44,4 @@
 
 ## Funcionalidades não incluídas ainda
 - Exclusão de contas, exclusão de saves, gerenciador de equipamentos/inventário, edição arbitrária de JSON, bloqueio remoto de cliente offline, proteção competitiva anti-trapaça.
-- Publicação no GitHub Pages e designação do primeiro administrador: ambas dependem de aprovação e identificação segura da conta.
+- Publicação e designação do primeiro administrador concluídas; não adicionar administradores sem identificação segura e autorização do titular.
