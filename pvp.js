@@ -38,7 +38,7 @@
     const f=body.querySelector('#pvpRankFilters');f.elements.kind.value=filters.kind;f.elements.mode.value=filters.mode;
   }
   function renderMatch(m,force=false){
-    match=m;offset=Date.parse(m.server_time)-Date.now();
+    match=m;if(['finished','cancelled'].includes(m.state)){clearInterval(poll);poll=null;}offset=Date.parse(m.server_time)-Date.now();
     const next=JSON.stringify({...m,server_time:null});if(signature===next&&!force)return;signature=next;
     const mine=m.p1===user,focus=mine?m.focus1:m.focus2;
     let content='';
@@ -57,7 +57,7 @@
     body.innerHTML=`<button data-pvp="lobby">← Meus desafios</button><section class="pvp-card"><small>${esc(label(m))} · ${states[m.state]}</small><h2>${esc(m.name1||'Jogador')} × ${esc(m.name2||'Aguardando')}</h2>${content}</section>${history}`;
     updateClock();
   }
-  async function openMatch(id){switchView('match');const e=epoch;const m=await rpc('get',{id});if(e!==epoch)return;renderMatch(m,true);
+  async function openMatch(id){switchView('match');const e=epoch;const m=await rpc('get',{id});if(e!==epoch)return;renderMatch(m,true);if(['finished','cancelled'].includes(m.state))return;
     poll=setInterval(async()=>{if(polling||busy||document.hidden||!dialog.open)return;if(!window.GameCloud?.canPlay()){dialog.close();return;}polling=true;try{const n=await rpc('get',{id});if(e===epoch&&view==='match')renderMatch(n);}catch(err){if(e===epoch)tell(err.message,true);}finally{polling=false;}},m.mode==='live'?2500:10000);
   }
   function updateClock(){const el=body.querySelector('#pvpClock');if(!el||!match?.deadline)return;const seconds=Math.max(0,Math.ceil((Date.parse(match.deadline)-Date.now()-offset)/1000));el.textContent=seconds?`Prazo: ${seconds>=3600?Math.floor(seconds/3600)+'h ':''}${Math.floor(seconds%3600/60)}min ${seconds%60}s`:'Prazo encerrado; aguardando verificação do servidor.';}
