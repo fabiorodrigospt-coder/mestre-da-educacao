@@ -407,6 +407,7 @@
     $('installBtn').textContent=deferredInstall?'Instalar agora':'Como instalar';
     if (!deferredInstall) $('installGuide').textContent='No celular, use “Adicionar à tela inicial” no menu do navegador. Assim você pode abrir o jogo como aplicativo.';
   }
-  window.GameCloud = { canPlay:()=>ready, loadLocalState, saveLocal, sync:manualSync };
+  window.GameCloud = { canPlay:()=>ready, loadLocalState, saveLocal, sync:manualSync, pvp:async(action,data={})=>{if(!ready||!user||!navigator.onLine)throw new Error('Entre online para jogar PvP.');return request('/rest/v1/rpc/mestre_pvp',{method:'POST',body:JSON.stringify({p_action:action,p_data:data})},true);} };
   boot().catch(err=>{message('Não foi possível iniciar a autenticação: '+err.message,true);status('Falha de inicialização; seus saves locais não foram apagados.');});
 })();
+
