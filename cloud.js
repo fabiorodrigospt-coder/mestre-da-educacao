@@ -407,7 +407,38 @@
     $('installBtn').textContent=deferredInstall?'Instalar agora':'Como instalar';
     if (!deferredInstall) $('installGuide').textContent='No celular, use “Adicionar à tela inicial” no menu do navegador. Assim você pode abrir o jogo como aplicativo.';
   }
-  window.GameCloud = { canPlay:()=>ready, loadLocalState, saveLocal, sync:manualSync, pvp:async(action,data={})=>{if(!ready||!user||!navigator.onLine)throw new Error('Entre online para jogar PvP.');return request('/rest/v1/rpc/mestre_pvp',{method:'POST',body:JSON.stringify({p_action:action,p_data:data})},true);} };
+  let activitySending=false;
+  const activityPrefix='mestre_activity_outbox_v1_';
+  function activityQueue(uid){try{const q=JSON.parse(localStorage.getItem(activityPrefix+uid)||'null');return q&&Array.isArray(q.events)?q:{events:[],dropped:0};}catch(_){return {events:[],dropped:0};}}
+  function trackActivity(event){
+    if(!ready||!user)return;
+    try{const q=activityQueue(user.id);q.events.push({...event,id:crypto.randomUUID(),at:new Date().toISOString()});
+      if(q.events.length>1000){q.dropped=(q.dropped||0)+(q.events.length-1000);q.events=q.events.slice(-1000);}
+      localStorage.setItem(activityPrefix+user.id,JSON.stringify(q));
+    }catch(_){status('Histórico de suporte sem espaço no aparelho. Exporte seu save.');}
+  }
+  async function flushActivity(){
+    if(activitySending||!ready||!user||!navigator.onLine)return;
+    const uid=user.id,q=activityQueue(uid);if(!q.events.length&&!q.dropped)return;
+    activitySending=true;
+    const dropped=q.dropped||0;
+    const events=q.events.slice(0,dropped?39:40);
+    const batch=dropped?[{id:crypto.randomUUID(),at:new Date().toISOString(),action:'queue_truncated',label:'Fila local de suporte atingiu o limite',details:{dropped}},...events]:events;
+    try{
+      if(Date.now()>=(session.expires_at||0)-60000)await refreshSession();
+      if(user?.id!==uid||session?.user?.id!==uid)return;
+      const token=session.access_token;
+      await request('/rest/v1/rpc/mestre_activity_submit',{method:'POST',headers:{Authorization:'Bearer '+token},body:JSON.stringify({p_events:batch})},false);
+      const current=activityQueue(uid),ids=new Set(events.map(x=>x.id));
+      current.events=current.events.filter(x=>!ids.has(x.id));current.dropped=Math.max(0,(current.dropped||0)-dropped);
+      localStorage.setItem(activityPrefix+uid,JSON.stringify(current));
+    }catch(_){/* Support uploads must never block cloud saves; retain the outbox for retry. */}
+    finally{activitySending=false;}
+  }
+  setInterval(flushActivity,10000);
+  window.addEventListener('online',flushActivity);
+  window.GameCloud = { canPlay:()=>ready, loadLocalState, saveLocal, sync:manualSync, trackActivity, pvp:async(action,data={})=>{if(!ready||!user||!navigator.onLine)throw new Error('Entre online para jogar PvP.');return request('/rest/v1/rpc/mestre_pvp',{method:'POST',body:JSON.stringify({p_action:action,p_data:data})},true);} };
   boot().catch(err=>{message('Não foi possível iniciar a autenticação: '+err.message,true);status('Falha de inicialização; seus saves locais não foram apagados.');});
 })();
+
 

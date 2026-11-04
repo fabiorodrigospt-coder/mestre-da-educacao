@@ -173,7 +173,7 @@ html[data-sticky="off"] .stickytop{position:relative}
 </div>
 <div class="pane" data-pane="data">
  <p>O jogo salva automaticamente uma cópia neste aparelho e sincroniza com a conta Supabase. Offline: joga normalmente; ao voltar à internet, sincroniza. O arquivo HTML antigo usa outra origem: exporte o save antigo e importe aqui.</p><p id="saveDetail"></p>
- <div class="cloud-details" id="cloudDetails" aria-live="polite">Status: conectando</div>
+ <div class="cloud-details" id="cloudDetails" aria-live="polite">Status: conectando</div><p class="cloud-details">Ações de jogo são registradas para orientação e suporte pelo administrador. Registros offline são enviados ao reconectar; escolhas de PvP só ficam disponíveis após o duelo.</p>
  <div class="cloud-actions"><button class="btn alt" type="button" id="syncNow">Sincronizar / resolver conflito</button></div>
  <div class="row2"><button class="btn alt" id="exportSave" type="button">Exportar save (.json)</button><button class="btn alt" id="importSave" type="button">Importar save (.json)</button></div><input type="file" id="importInput" accept=".json,application/json" hidden>
  <div class="divider"></div><div id="resetStep"><button class="btn danger" id="resetButton" type="button">Resetar progresso</button></div>
@@ -197,7 +197,7 @@ const PAGE={
  business:['Seu Patrimônio','Negócios','Abra aulas particulares, cursinhos e plataformas de ensino; amplie as unidades e receba lucros passivos.'],
  market:['Material & Recuperação','Livraria','Compre livros, equipamentos e cafés para recuperar energia. Guarde cafés para usar quando precisar.'],
  night:['Cuidar de quem ensina','Descanso','Recupere energia, melhore atributos e administre os períodos de descanso.'],
- bank:['Controle Financeiro','Banco Estratégico','Depósitos custam 2% e exigem intervalo de 60 segundos. O afastamento desconta 40% do dinheiro em mãos.'],
+ bank:['Controle Financeiro','Banco Estratégico','Depósitos custam 2% e exigem intervalo de 60 segundos. O afastamento desconta 5% do dinheiro em mãos, limitado a R$ 500 por falha.'],
  missions:['Objetivos & Recompensas','Missões da Carreira','Conquiste marcos em aulas, equipe, debates e negócios. Resgate prêmios a cada etapa.'],
  territories:['Rede de escolas','Escolas','Assuma a direção de escolas, gerencie estabilidade, manutenção e recuperação financeira ou por missões.'],
  bosses:['Os maiores obstáculos da educação','Grandes Desafios','Dez desafios controlados pela IA, debates por turnos e itens exclusivos.'],
@@ -799,7 +799,7 @@ function startGuide(){
 function log(msg,type='info'){s.log.unshift({msg,type,at:Date.now()});s.log=s.log.slice(0,20);}
 function toast(msg,bad=false){const el=document.getElementById('toast');el.textContent=msg;el.className='toast show'+(bad?' error':'');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3300);}
 function commit(msg,bad=false){save();render();if(msg)toast(msg,bad);}
-function checkPrison(){if(imprisoned()){toast('Você está detido. Aguarde a libertação.',true);return true;}if((s.arena?.battle&&tab!=='arena')||(s.bosses?.battle&&tab!=='bosses')){toast('Finalize o combate em andamento antes de outras ações.',true);return true;}return false;}
+function checkPrison(){if(imprisoned()){toast('Você está afastado. Aguarde o fim do descanso.',true);return true;}if((s.arena?.battle&&tab!=='arena')||(s.bosses?.battle&&tab!=='bosses')){toast('Finalize o combate em andamento antes de outras ações.',true);return true;}return false;}
 function itemPrice(item){return Math.round(item.price*eventNow().shop*(s.subject==='artes'?.92:1));}
 function consumptionCount(){return CONSUMABLES.reduce((n,c)=>n+(s.consumables[c.id]||0),0);}
 function earnedMoney(amount){s.money+=amount;s.stats.earned+=amount;}
@@ -985,10 +985,10 @@ function renderSide(){const lv=level();const start=LEVELS[lv-1],end=LEVELS[lv]||
  document.getElementById('recentActivity').innerHTML=`<div class="module-header"><h3>ÚLTIMOS ACONTECIMENTOS</h3></div><div class="module-body">${s.log.slice(0,6).map(item=>`<div class="feed ${item.type}"><p>${esc(item.msg)}</p><small>${new Date(item.at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</small></div>`).join('')||'<p class="empty">Nenhum acontecimento registrado.</p>'}</div>`;
 }
 function renderCrimes(){const available=CRIMES.filter(c=>missing(c).length===0).length;
- return startGuide()+goalBox(false)+`<div class="section-title">AULAS INDIVIDUAIS <span>${available}/${CRIMES.length} desbloqueados</span></div><div class="hint">Chances calculadas a partir dos atributos equipados, do nível de estresse e dos eventos do dia. Aulas que dão errado causam afastamento por burnout de 15 a 120 segundos (quanto mais estresse, mais tempo) e desconto de 40% do dinheiro em mãos. As 3 primeiras falhas da carreira não descontam nada. O dinheiro no banco continua protegido.</div><div class="cards">${CRIMES.map(c=>{
+ return startGuide()+goalBox(false)+`<div class="section-title">AULAS INDIVIDUAIS <span>${available}/${CRIMES.length} desbloqueados</span></div><div class="hint">Chances calculadas a partir dos atributos equipados, do nível de estresse e dos eventos do dia. Aulas que dão errado causam afastamento por burnout de 15 a 45 segundos (quanto mais estresse, mais tempo) e desconto de 5% do dinheiro em mãos, limitado a R$ 500 por falha. As 3 primeiras falhas da carreira não descontam nada. O dinheiro no banco continua protegido.</div><div class="cards">${CRIMES.map(c=>{
  const req=missing(c),chance=odds(c),ready=!req.length&&s.energy>=crimeEnergy(c)&&!imprisoned();
  const label=imprisoned()?'Afastado':req.length?'Bloqueado':s.energy<crimeEnergy(c)?'Sem energia':'Dar aula';
- return `<article class="card"><div class="card-head"><div class="card-ico">${c.icon}</div><div><h3>${c.name}</h3><span class="pill ${req.length?'red':'green'}">${req.length?'BLOQUEADO':'DISPONÍVEL'} · LV ${c.lvl}</span></div></div><p class="description">${c.desc}</p><div class="details"><div class="detail"><span>Dinheiro</span><b style="color:var(--green)">${money(c.cash[0])}–${money(c.cash[1])}</b></div><div class="detail"><span>Reputação</span><b>+${c.rep[0]}–${c.rep[1]}</b></div><div class="detail"><span>Chance atual</span><b style="color:${chance<65?'#ffb3ae':'var(--gold)'}">${chance}%</b></div><div class="detail"><span>Energia</span><b>−${crimeEnergy(c)}%</b></div></div><p class="requirements ${req.length?'missing':''}">${req.length?'Falta: '+req.join(' · '):'Atributos exigidos: '+Object.entries(c.min).map(([k,v])=>attrShort[k]+' '+v).join(' · ')}</p><button type="button" class="btn" data-action="crime" data-id="${c.id}" ${ready?'':'disabled'}>${label}</button></article>`;}).join('')}</div>`;
+ return `<article class="card"><div class="card-head"><div class="card-ico">${c.icon}</div><div><h3>${c.name}</h3><span class="pill ${req.length?'red':'green'}">${req.length?'BLOQUEADO':'DISPONÍVEL'} · LV ${c.lvl}</span></div></div><p class="description">${c.desc}</p><div class="details"><div class="detail"><span>Dinheiro</span><b style="color:var(--green)">${money(c.cash[0])}–${money(c.cash[1])}</b></div><div class="detail"><span>Reputação</span><b>+${c.rep[0]}–${c.rep[1]}</b></div><div class="detail"><span>Chance atual</span><b style="color:${chance<65?'#ffb3ae':'var(--gold)'}">${chance}%</b></div><div class="detail"><span>Energia</span><b>−${crimeEnergy(c)}%</b></div></div><p class="requirements ${req.length?'missing':''}">${req.length?'Falta: '+req.join(' · '):'Atributos exigidos: '+Object.entries(c.min).map(([k,v])=>attrShort[k]+' '+v).join(' · ')}</p><p class="requirements">Em caso de falha: afastamento de 15–45 s · desconto máximo agora: ${money(absenceLoss())} · banco protegido.</p><button type="button" class="btn" data-action="crime" data-id="${c.id}" ${ready?'':'disabled'}>${label}</button></article>`;}).join('')}</div>`;
 }
 function renderArena(){
  const a=s.arena,b=a.battle,now=Date.now();
@@ -1003,7 +1003,7 @@ function renderArena(){
  <p class="section-sub">*Estimativa por simulação de 250 duelos com seus atributos atuais. Vencer professores bem abaixo do seu ranking rende cada vez menos pontos.</p>
  <div class="section-title">RANKING DOS DEBATES <span>Adversários e pontuações simuladas</span></div><div class="large-panel" style="padding:0;overflow:hidden">${[...ARENA_BOTS.map(bot=>({name:bot.icon+' '+bot.name,rating:bot.rating,player:false})),{name:'🧑‍🏫 Você',rating:a.rating,player:true}].sort((x,y)=>y.rating-x.rating).map((x,i)=>`<div class="arena-rank ${x.player?'player':''}"><span>${i+1}º · ${esc(x.name)}</span><span>${num(x.rating)} pts</span></div>`).join('')}</div>`;
 }
-function renderGang(){return renderGangEconomy()+`<div class="metrics"><div class="metric"><small>Poder total da equipe</small><b>${num(gangPower())}</b></div><div class="metric"><small>Vitórias conjuntas</small><b>${num(s.stats.gangWins)}</b></div></div><div class="section-title">RECRUTAR COLEGAS <span>NPCs locais, sem multiplayer</span></div><div class="cards">${MEMBERS.map(m=>{const recruited=s.members.includes(m.id);return `<article class="card"><div class="card-head"><div class="card-ico">${m.icon}</div><div><h3>${m.name}</h3><span class="pill ${recruited?'green':''}">${recruited?'NV '+crewMeta(m.id).level+' · '+crewMeta(m.id).loyalty+'% MOTIVAÇÃO':'DISPONÍVEL'}</span></div></div><p class="description">${m.skill}</p><div class="details"><div class="detail"><span>Poder extra</span><b>+${Math.round(m.power*(1+(crewMeta(m.id).level-1)*.12))}</b></div><div class="detail"><span>Contratação</span><b>${money(m.price)}</b></div></div><p class="requirements">Bônus de reputação: +${m.rep}</p><button class="btn ${recruited?'alt':'good'}" data-action="recruit" data-id="${m.id}" ${recruited||s.money<m.price||imprisoned()?'disabled':''}>${recruited?'Na sua equipe':'Contratar'}</button></article>`;}).join('')}</div>${renderCrewEvolution()}<div class="section-title">PROJETOS EM EQUIPE <span>Divisão de prêmios simulada</span></div><div class="hint">O poder da equipe soma seus atributos efetivos e os bônus dos colegas. Nenhum outro jogador é necessário.</div><div class="cards">${HEISTS.map(h=>{const blocked=level()<h.level||s.members.length<h.members;const chance=gangOdds(h);return `<article class="card"><div class="card-head"><div class="card-ico">${h.icon}</div><div><h3>${h.name}</h3><span class="pill ${blocked?'red':'green'}">${blocked?'BLOQUEADO':'PREPARADO'}</span></div></div><div class="details"><div class="detail"><span>Recompensa</span><b style="color:var(--green)">${money(h.cash[0])}–${money(h.cash[1])}</b></div><div class="detail"><span>Reputação</span><b>+${h.rep[0]}–${h.rep[1]}</b></div><div class="detail"><span>Chance</span><b>${chance}%</b></div><div class="detail"><span>Energia</span><b>−${h.energy}%</b></div></div><p class="requirements ${blocked?'missing':''}">Exige ${h.members} colegas e nível ${h.level} · Poder recomendado: ${h.diff}</p><button class="btn" data-action="heist" data-id="${h.id}" ${blocked||s.energy<h.energy||imprisoned()?'disabled':''}>Realizar projeto</button></article>`;}).join('')}</div>`;}
+function renderGang(){return renderGangEconomy()+`<div class="metrics"><div class="metric"><small>Poder total da equipe</small><b>${num(gangPower())}</b></div><div class="metric"><small>Vitórias conjuntas</small><b>${num(s.stats.gangWins)}</b></div></div><div class="section-title">RECRUTAR COLEGAS <span>NPCs locais, sem multiplayer</span></div><div class="cards">${MEMBERS.map(m=>{const recruited=s.members.includes(m.id);return `<article class="card"><div class="card-head"><div class="card-ico">${m.icon}</div><div><h3>${m.name}</h3><span class="pill ${recruited?'green':''}">${recruited?'NV '+crewMeta(m.id).level+' · '+crewMeta(m.id).loyalty+'% MOTIVAÇÃO':'DISPONÍVEL'}</span></div></div><p class="description">${m.skill}</p><div class="details"><div class="detail"><span>Poder extra</span><b>+${Math.round(m.power*(1+(crewMeta(m.id).level-1)*.12))}</b></div><div class="detail"><span>Contratação</span><b>${money(m.price)}</b></div></div><p class="requirements">Bônus de reputação: +${m.rep}</p><button class="btn ${recruited?'alt':'good'}" data-action="recruit" data-id="${m.id}" ${recruited||s.money<m.price||imprisoned()?'disabled':''}>${recruited?'Na sua equipe':'Contratar'}</button></article>`;}).join('')}</div>${renderCrewEvolution()}<div class="section-title">PROJETOS EM EQUIPE <span>Divisão de prêmios simulada</span></div><div class="hint">O poder da equipe soma seus atributos efetivos e os bônus dos colegas. Nenhum outro jogador é necessário.</div><div class="cards">${HEISTS.map(h=>{const blocked=level()<h.level||s.members.length<h.members;const chance=gangOdds(h);return `<article class="card"><div class="card-head"><div class="card-ico">${h.icon}</div><div><h3>${h.name}</h3><span class="pill ${blocked?'red':'green'}">${blocked?'BLOQUEADO':'PREPARADO'}</span></div></div><div class="details"><div class="detail"><span>Recompensa</span><b style="color:var(--green)">${money(h.cash[0])}–${money(h.cash[1])}</b></div><div class="detail"><span>Reputação</span><b>+${h.rep[0]}–${h.rep[1]}</b></div><div class="detail"><span>Chance</span><b>${chance}%</b></div><div class="detail"><span>Energia</span><b>−${h.energy}%</b></div></div><p class="requirements ${blocked?'missing':''}">Exige ${h.members} colegas e nível ${h.level} · Poder recomendado: ${h.diff}</p><p class="requirements">Falha: afastamento de 15–45 s · desconto máximo agora: ${money(absenceLoss())} · banco protegido.</p><button class="btn" data-action="heist" data-id="${h.id}" ${blocked||s.energy<h.energy||imprisoned()?'disabled':''}>Realizar projeto</button></article>`;}).join('')}</div>`;}
 function renderMarket(){
  return `<div class="hint">Equipamentos dão bônus enquanto equipados. <strong>Cafés são consumíveis:</strong> compre na Livraria, armazene até 20 unidades de cada tipo e use diretamente no inventário. A energia não ultrapassa 100%.</div>
  <div class="section-title">CAFÉS & REFEIÇÕES <span>Energia atual: ${Math.floor(s.energy)}%</span></div>
@@ -1278,19 +1278,15 @@ function grantXp(amount){
   log('Nível de experiência '+lvl+' alcançado! Pontos livres de habilidade.','success');
  }
 }
-function confiscate(){const rate=s.stats.losses<3?0:.4;const lost=Math.floor(s.money*rate);s.money-=lost;return lost;}
+function absenceLoss(){return s.stats.losses<3?0:Math.min(500,Math.floor(Math.max(0,s.money)*.05));}
+function confiscate(){const lost=absenceLoss();s.money-=lost;return lost;}
 function odds(c){
  const tier=c.lvl>=8?88:c.lvl>=5?90:c.lvl>=2?93:95;
  return clamp(Math.round(67+(statPower(c.weights)-c.diff)*2.15-s.heat*.15+eventNow().chance+
  (s.profession==='robber'?6:0)+(s.subject==='portugues'?4:0)+skillRank('precision')*3+bonusActive()*4),12,tier);
 }
 function crimeEnergy(c){return Math.max(5,Math.ceil(c.cost*(1-Math.min(.20,skillRank('stamina')*.04))*(s.subject==='edfisica'?.88:1)));}
-function prisonSeconds(c){
- const indexes=CRIMES.findIndex(x=>x.id===c.id);
- const low=[15,20,25,35,45,60,75,90][indexes]??30;
- const high=[25,35,40,50,65,90,105,120][indexes]??90;
- return clamp(Math.round(low+(high-low)*(s.heat/100)*(1-skillRank('escape_route')*.04)),15,120);
-}
+function prisonSeconds(c){return clamp(Math.round(15+30*clamp(s.heat,0,100)/100*(1-skillRank('escape_route')*.04)),15,45);}
 function doCrime(id){
  if(checkPrison())return;
  const c=CRIMES.find(x=>x.id===id);if(!c)return;
@@ -1326,7 +1322,7 @@ function doHeist(id){
   log(h.name+': +'+money(cash)+'.','success');commit('Operação concluída! +'+money(cash));
  }else{
   const lost=confiscate();s.stats.losses++;
-  const seconds=clamp(Math.round(h.jail*1.7+s.heat*.25),20,120);
+  const seconds=prisonSeconds(h);
   s.prisonUntil=Date.now()+seconds*1000;
   log('Operação falhou: afastamento e desconto de '+money(lost)+'.','fail');commit('Afastado por '+seconds+'s; desconto de '+money(lost),true);
  }
@@ -1500,7 +1496,7 @@ function updateTimers(now=Date.now()){
  if(heatRounds>0){s.heat=Math.max(0,s.heat-heatRounds);s.heatAt=now-((now-heatStart)%HEAT_MS);changed=true;}
  else if(s.heatAt>now){s.heatAt=now;changed=true;}
  if(processEconomy(now,isOffline))changed=true;
- if(s.prisonUntil&&s.prisonUntil<=now){s.prisonUntil=0;log('Você foi libertado.','info');changed=true;}
+ if(s.prisonUntil&&s.prisonUntil<=now){s.prisonUntil=0;log('Afastamento encerrado. Você já pode voltar às aulas.','info');changed=true;}
  if(changed)save();return changed;
 }
 function bankTransfer(kind){
@@ -1643,7 +1639,7 @@ function renderBank(){
  const wait=Math.max(0,DEPOSIT_COOLDOWN-(Date.now()-s.economy.bankDepositAt));
  return `<div class="metrics"><div class="metric"><small>Dinheiro em mãos</small><b style="color:var(--green)">${money(s.money)}</b></div>
  <div class="metric"><small>Banco protegido</small><b style="color:var(--gold)">${money(s.bank)}</b></div></div>
- <div class="hint">Afastamento: desconto de 40% do dinheiro em mãos (as 3 primeiras falhas são perdoadas). Depósito: tarifa de 2%, com intervalo de 60 segundos entre depósitos. Saques não têm tarifa. O banco nunca financia salários automaticamente.</div>
+ <div class="hint">Afastamento: desconto de 5% do dinheiro em mãos, limitado a R$ 500 por falha (as 3 primeiras falhas são perdoadas). Depósito: tarifa de 2%, com intervalo de 60 segundos entre depósitos. Saques não têm tarifa. O banco nunca financia salários automaticamente.</div>
  <div class="section-title">OPERAÇÕES BANCÁRIAS <span>${wait?'Próximo depósito: '+duration(wait):'Depósito liberado'}</span></div>
  <div class="cards"><article class="card"><h3>⬇️ Depositar</h3><p class="description">Proteja seu dinheiro. O valor líquido sofre tarifa de 2%.</p>
  <div class="button-pair"><button class="btn good" data-action="deposit-half" ${wait||s.money<2||imprisoned()?'disabled':''}>Metade</button><button class="btn good" data-action="deposit-all" ${wait||s.money<2||imprisoned()?'disabled':''}>Tudo</button></div></article>
@@ -1701,6 +1697,8 @@ claimLock();render();setInterval(tick,1000);
 </script>
 <script src="./config.js"></script>
 <script src="./cloud.js"></script>
+<script src="./activity.js"></script>
 <script src="./pvp.js"></script>
 </body></html>
+
 

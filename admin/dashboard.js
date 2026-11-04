@@ -92,7 +92,7 @@
   async function signOut(){
     const token=session?.access_token;
     session=null;saveSession();showLoggedIn(false);selected=null;players=[];
-    $('loginForm').reset();loginReport('Sessão administrativa encerrada.');
+    $('activityPanel').hidden=true;activityGeneration++;$('activityEvents').replaceChildren();$('activityPvp').replaceChildren();$('loginForm').reset();loginReport('Sessão administrativa encerrada.');
     if(token) fetch(BASE+'/auth/v1/logout',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+token}}).catch(()=>{});
   }
   function make(tag,className='',value=''){
@@ -125,7 +125,7 @@
     }
   }
   function clearSelection(){
-    selected=null;$('selectedName').textContent='';$('selectedId').textContent='';
+    selected=null;$('activityBtn').disabled=true;$('activityPanel').hidden=true;activityGeneration++;$('selectedName').textContent='';$('selectedId').textContent='';
     $('lastSeen').textContent='';$('editForm').hidden=true;
     $('noSave').textContent='Escolha um jogador para consultar sua partida.';
     $('playerStatus').textContent='Selecione uma conta';
@@ -135,7 +135,7 @@
   function pickPlayer(id) {
     const p=players.find(x=>x.user_id===id);
     if(!p)return;
-    selected=p;
+    selected=p;$('activityBtn').disabled=false;$('activityPanel').hidden=true;activityGeneration++;
     document.querySelectorAll('.player').forEach(b=>b.classList.toggle('selected',
       b.querySelector('strong')?.textContent===p.display_name &&
       b.querySelector('small')?.textContent===p.email));
@@ -242,6 +242,50 @@
       $('historyPanel').scrollIntoView({behavior:'smooth',block:'start'});
     }catch(err){report('Não foi possível consultar auditoria: '+err.message,true);}
   }
+  let activityCursor=null,activityGeneration=0,activityLoading=false;
+  const amount=v=>Number(v||0).toLocaleString('pt-BR',{maximumFractionDigits:2});
+  async function showActivity(more=false){
+    if(!selected||activityLoading)return;
+    const target=selected.user_id,gen=++activityGeneration,name=selected.display_name;
+    activityLoading=true;$('activityRefresh').disabled=true;$('activityMore').disabled=true;
+    try{
+      const data=await api('/rest/v1/rpc/mestre_admin_activity','POST',{p_user_id:target,p_before:more?activityCursor:null});
+      if(gen!==activityGeneration||selected?.user_id!==target)return;
+      $('activityTitle').textContent='Atividade: '+name;$('activityNotice').textContent=data.notice;
+      if(!more)$('activityEvents').replaceChildren();
+      let failures=0,training=0,purchases=0,totalLoss=0;
+      for(const ev of data.events){
+        const d=ev.details||{},before=d.before||{},after=d.after||{};
+        if(Number(after.losses)>Number(before.losses))failures++;
+        if(ev.action==='train')training++;if(['item','buy-consumable','business','upgrade'].includes(ev.action))purchases++;
+        const loss=Math.max(0,Number(before.money||0)-Number(after.money||0));if(Number(after.losses)>Number(before.losses))totalLoss+=loss;
+        const card=make('div','history');card.append(make('strong','',ev.label||ev.action),make('small','',date(ev.occurred_at)+' · recebido: '+date(ev.received_at)+' · '+ev.action+(ev.target?' / '+ev.target:'')));
+        const changes=[];
+        for(const [key,label] of Object.entries({money:'Dinheiro',bank:'Banco',energy:'Energia',respect:'Reputação',xp:'XP',heat:'Estresse'}))
+          if(before[key]!=null&&after[key]!=null&&before[key]!==after[key])changes.push(label+': '+amount(before[key])+' → '+amount(after[key]));
+        for(const [key,label] of Object.entries({intelligence:'Didática',strength:'Domínio',charisma:'Carisma',resistance:'Paciência'}))
+          if(before.attributes?.[key]!=null&&after.attributes?.[key]!=null&&before.attributes[key]!==after.attributes[key])changes.push(label+': '+amount(before.attributes[key])+' → '+amount(after.attributes[key]));
+        card.append(make('p','',changes.join(' · ')||(ev.action==='navigate'?'Navegação registrada.':'Sem alteração de recursos registrada.')));
+        if(d.dropped)card.append(make('p','',d.dropped+' eventos antigos não foram enviados: limite da fila local.'));
+        for(const log of d.logs||[])card.append(make('p','',log.message));
+        $('activityEvents').append(card);
+      }
+      if(!data.events.length&&!more)$('activityEvents').append(make('p','muted','Nenhuma ação enviada ainda. O registro começa nesta atualização; ações offline chegam após a reconexão.'));
+      $('activitySummary').textContent='Sinais nos '+data.events.length+' eventos desta página: '+failures+' falha(s), '+training+' tentativa(s) de treino, '+purchases+' tentativa(s) de compra/melhoria; descontos por falha: R$ '+amount(totalLoss)+'. São observações, não uma conclusão automática sobre a estratégia.';
+      const pv=$('activityPvp');pv.replaceChildren(make('h3','','PvP · últimos 20 duelos'));
+      for(const m of data.pvp){const card=make('div','history');card.append(make('strong','',(m.kind==='debate'?'Debate':'Perguntas')+' · '+(m.mode==='live'?'Ao vivo':'Por turnos')+' × '+(m.opponent||'Aguardando')),make('small','',date(m.created_at)+' · '+m.state));
+        if(m.state==='finished'){card.append(make('p','','Placar: '+m.own_score+' × '+m.opponent_score));for(const r of m.rounds||[])card.append(make('p','','Rodada '+r.round+': '+(m.kind==='quiz'?(r.choice===null?'sem resposta':'alternativa '+(Number(r.choice)+1)):(r.choice||'sem jogada'))+' · '+r.points+' pontos'));}
+        else card.append(make('p','muted','Estratégias indisponíveis enquanto o duelo não terminar.'));pv.append(card);}
+      if(!data.pvp.length)pv.append(make('p','muted','Nenhum duelo registrado.'));
+      activityCursor=data.next;$('activityMore').disabled=!activityCursor;$('activityPanel').hidden=false;
+      if(!more)$('activityPanel').scrollIntoView({behavior:'smooth',block:'start'});
+    }catch(err){report('Não foi possível consultar a atividade: '+err.message,true);}
+    finally{activityLoading=false;$('activityRefresh').disabled=false;if(gen!==activityGeneration)$('activityMore').disabled=true;}
+  }
+  $('activityBtn').addEventListener('click',()=>showActivity());
+  $('activityRefresh').addEventListener('click',()=>showActivity());
+  $('activityMore').addEventListener('click',()=>showActivity(true));
+  $('closeActivity').addEventListener('click',()=>{$('activityPanel').hidden=true;activityGeneration++;});
   $('loginForm').addEventListener('submit',signIn);
   $('logout').addEventListener('click',signOut);
   $('refreshBtn').addEventListener('click',()=>loadDashboard());
@@ -264,3 +308,4 @@
     });
   }
 })();
+
