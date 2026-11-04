@@ -17,11 +17,11 @@
 
 ## Implantação — exclusivamente após aprovação para publicar
 1. Fazer backup da base de dados do projeto Mestre da Educação.
-2. Confirmar exatamente qual conta cadastrada no jogo pertence ao administrador. Nunca escolher pelo primeiro cadastro.
+2. Confirmar exatamente qual conta cadastrada no jogo pertence ao administrador. Nunca escolher pelo primeiro cadastro. O campo auth.users.email_confirmed_at deve estar preenchido; uma conta ainda não verificada não recebe autorização.
 3. Aplicar a migração SQL de admin/migration.sql no projeto Supabase Mestre da Educação. Não utilizar nenhum projeto do Guedes Hub.
 4. Conferir que a migração criou os perfis, funções, triggers e as colunas admin_revision e ack_admin_revision.
 5. Com o ID confirmado, conceder permissão via SQL Editor (trocar o endereço por um e-mail VERIFICADO):
-   insert into private.mestre_educacao_admins(user_id) select id from auth.users where lower(email)=lower('EMAIL_DA_CONTA_JOGO_CONFIRMADA') on conflict(user_id) do nothing;
+   insert into private.mestre_educacao_admins(user_id) select id from auth.users where lower(email)=lower('EMAIL_DA_CONTA_JOGO_CONFIRMADA') and email_confirmed_at is not null on conflict(user_id) do nothing;
 6. Validar autorizações negativas: uma conta comum não consegue acessar as quatro RPCs administrativas nem consultar outros jogadores.
 7. Testar em hospedagem separada, só depois decidir se será feito o merge na branch main.
 
