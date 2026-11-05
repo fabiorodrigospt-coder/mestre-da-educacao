@@ -40,7 +40,7 @@ const scene=new THREE.Scene();scene.background=new THREE.Color(0x102a3c);scene.f
 scene.add(new THREE.HemisphereLight(0xe4f5ff,0x658a75,2.15));
 const sun=new THREE.DirectionalLight(0xffe7b1,2.35);sun.position.set(-9,22,13);scene.add(sun);
 const camera=new THREE.OrthographicCamera(-14,14,10,-10,.1,100);
-const cameraGoal=new THREE.Vector3(0,0,0);let zoom=1;
+const cameraGoal=new THREE.Vector3(-4.6,0,5.4);let zoom=1;
 function resize(){
  const w=innerWidth,h=innerHeight,aspect=w/h,vertical=14/zoom;
  camera.left=-vertical*aspect/2;camera.right=vertical*aspect/2;
@@ -48,7 +48,7 @@ function resize(){
  renderer.setSize(w,h,false);
 }
 function updateCamera(dt){
- const goal=centerCam?new THREE.Vector3(STATE.game.position.x*.18,0,STATE.game.position.z*.18):cameraGoal;
+ const goal=centerCam?new THREE.Vector3(STATE.game.root.position.x,0,STATE.game.root.position.z):cameraGoal;
  cameraGoal.lerp(goal,Math.min(1,dt*3.2));
  camera.position.set(cameraGoal.x+20,cameraGoal.y+21,cameraGoal.z+23);
  camera.lookAt(cameraGoal.x,0,cameraGoal.z);
