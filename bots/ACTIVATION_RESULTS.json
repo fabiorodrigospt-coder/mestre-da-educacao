@@ -1,0 +1,438 @@
+{
+  "started_at": "2026-11-05T07:10:05.250Z",
+  "engine_sha256": "cbae694a4b2097241d2400dac7b8a3f190628d9c6c2ec0e823fbd1191ce6c3a4",
+  "bots": [
+    {
+      "engine_sha256": "cbae694a4b2097241d2400dac7b8a3f190628d9c6c2ec0e823fbd1191ce6c3a4",
+      "bot": "BOT QA 01",
+      "intelligence": 0.83,
+      "xp": 435,
+      "level": 2,
+      "rank": 3,
+      "money": 3889,
+      "bank": 0,
+      "respect": 401,
+      "energy": 100,
+      "heat": 0,
+      "wins": 0,
+      "losses": 0,
+      "attributes": {
+        "intelligence": 7,
+        "strength": 11,
+        "charisma": 6,
+        "resistance": 7
+      },
+      "active_ms": 239071,
+      "session_ms": 119505,
+      "total_active_ms": 239071,
+      "sessions": 2,
+      "wall_ms": 1465355,
+      "milestones": {
+        "2": {
+          "at": "2026-11-05T06:51:30.902Z",
+          "wall_ms": 220246,
+          "active_ms": 120571
+        }
+      },
+      "actions": {
+        "turno_chefe": 7,
+        "habilidade": 1
+      },
+      "delta_xp": 210
+    },
+    {
+      "engine_sha256": "cbae694a4b2097241d2400dac7b8a3f190628d9c6c2ec0e823fbd1191ce6c3a4",
+      "bot": "BOT QA 02",
+      "intelligence": 0.71,
+      "xp": 270,
+      "level": 2,
+      "rank": 2,
+      "money": 3288,
+      "bank": 0,
+      "respect": 329,
+      "energy": 100,
+      "heat": 0,
+      "wins": 0,
+      "losses": 1,
+      "attributes": {
+        "intelligence": 7,
+        "strength": 11.4,
+        "charisma": 6,
+        "resistance": 7.4
+      },
+      "active_ms": 239068,
+      "session_ms": 119504,
+      "total_active_ms": 239068,
+      "sessions": 2,
+      "wall_ms": 1456249,
+      "milestones": {
+        "2": {
+          "at": "2026-11-05T06:51:36.755Z",
+          "wall_ms": 216416,
+          "active_ms": 126424
+        }
+      },
+      "actions": {
+        "turno_arena": 8
+      },
+      "delta_xp": 45
+    },
+    {
+      "engine_sha256": "cbae694a4b2097241d2400dac7b8a3f190628d9c6c2ec0e823fbd1191ce6c3a4",
+      "bot": "BOT QA 03",
+      "intelligence": 0.9,
+      "xp": 198,
+      "level": 1,
+      "rank": 1,
+      "money": 1101,
+      "bank": 0,
+      "respect": 82,
+      "energy": 82,
+      "heat": 1,
+      "wins": 2,
+      "losses": 0,
+      "attributes": {
+        "intelligence": 8,
+        "strength": 11,
+        "charisma": 9.2,
+        "resistance": 7
+      },
+      "active_ms": 239067,
+      "session_ms": 119503,
+      "total_active_ms": 239067,
+      "sessions": 2,
+      "wall_ms": 1446587,
+      "milestones": {},
+      "actions": {
+        "turno_chefe": 3,
+        "aula_pocket": 2,
+        "conquista": 1,
+        "treino": 1,
+        "plantao": 1
+      },
+      "delta_xp": 158
+    },
+    {
+      "engine_sha256": "cbae694a4b2097241d2400dac7b8a3f190628d9c6c2ec0e823fbd1191ce6c3a4",
+      "bot": "BOT QA 04",
+      "intelligence": 0.59,
+      "xp": 40,
+      "level": 1,
+      "rank": 1,
+      "money": 1218,
+      "bank": 0,
+      "respect": 19,
+      "energy": 88,
+      "heat": 0,
+      "wins": 0,
+      "losses": 0,
+      "attributes": {
+        "intelligence": 7,
+        "strength": 11,
+        "charisma": 6,
+        "resistance": 7
+      },
+      "active_ms": 239066,
+      "session_ms": 119502,
+      "total_active_ms": 239066,
+      "sessions": 2,
+      "wall_ms": 1434608,
+      "milestones": {},
+      "actions": {
+        "turno_chefe": 3,
+        "arena": 1,
+        "turno_arena": 4
+      },
+      "delta_xp": 0
+    },
+    {
+      "engine_sha256": "cbae694a4b2097241d2400dac7b8a3f190628d9c6c2ec0e823fbd1191ce6c3a4",
+      "bot": "BOT QA 05",
+      "intelligence": 0.62,
+      "xp": 345,
+      "level": 2,
+      "rank": 3,
+      "money": 2592,
+      "bank": 0,
+      "respect": 564,
+      "energy": 87,
+      "heat": 14,
+      "wins": 1,
+      "losses": 1,
+      "attributes": {
+        "intelligence": 7.7,
+        "strength": 11,
+        "charisma": 6.6,
+        "resistance": 7
+      },
+      "active_ms": 239067,
+      "session_ms": 119503,
+      "total_active_ms": 239067,
+      "sessions": 2,
+      "wall_ms": 1424585,
+      "milestones": {
+        "2": {
+          "at": "2026-11-05T07:12:17.885Z",
+          "active_ms": 239067,
+          "wall_ms": 1424295
+        }
+      },
+      "actions": {
+        "aula_pocket": 1,
+        "descanso": 1,
+        "equipamento": 2,
+        "escola": 2,
+        "conquista": 1,
+        "missoes": 1
+      },
+      "delta_xp": 185
+    },
+    {
+      "engine_sha256": "cbae694a4b2097241d2400dac7b8a3f190628d9c6c2ec0e823fbd1191ce6c3a4",
+      "bot": "BOT QA 06",
+      "intelligence": 0.94,
+      "xp": 255,
+      "level": 2,
+      "rank": 2,
+      "money": 1308,
+      "bank": 0,
+      "respect": 256,
+      "energy": 74,
+      "heat": 0,
+      "wins": 2,
+      "losses": 0,
+      "attributes": {
+        "intelligence": 8.6,
+        "strength": 11.4,
+        "charisma": 7.4,
+        "resistance": 7.4
+      },
+      "active_ms": 239063,
+      "session_ms": 119500,
+      "total_active_ms": 239063,
+      "sessions": 2,
+      "wall_ms": 1413839,
+      "milestones": {
+        "2": {
+          "at": "2026-11-05T07:12:18.462Z",
+          "active_ms": 239063,
+          "wall_ms": 1413710
+        }
+      },
+      "actions": {
+        "turno_arena": 2,
+        "negocio": 1,
+        "missoes": 1,
+        "aula_pocket": 1,
+        "plantao": 1,
+        "habilidade": 1,
+        "arena": 1
+      },
+      "delta_xp": 115
+    },
+    {
+      "engine_sha256": "cbae694a4b2097241d2400dac7b8a3f190628d9c6c2ec0e823fbd1191ce6c3a4",
+      "bot": "BOT QA 07",
+      "intelligence": 0.4,
+      "xp": 148,
+      "level": 1,
+      "rank": 2,
+      "money": 1008,
+      "bank": 0,
+      "respect": 117,
+      "energy": 80,
+      "heat": 0,
+      "wins": 1,
+      "losses": 1,
+      "attributes": {
+        "intelligence": 7.7,
+        "strength": 11,
+        "charisma": 8.9,
+        "resistance": 7
+      },
+      "active_ms": 239061,
+      "session_ms": 119499,
+      "total_active_ms": 239061,
+      "sessions": 2,
+      "wall_ms": 1403715,
+      "milestones": {},
+      "actions": {
+        "treino": 1,
+        "plantao": 1,
+        "chefe": 1,
+        "turno_chefe": 5
+      },
+      "delta_xp": 8
+    },
+    {
+      "engine_sha256": "cbae694a4b2097241d2400dac7b8a3f190628d9c6c2ec0e823fbd1191ce6c3a4",
+      "bot": "BOT QA 08",
+      "intelligence": 0.68,
+      "xp": 325,
+      "level": 2,
+      "rank": 3,
+      "money": 3351,
+      "bank": 0,
+      "respect": 405,
+      "energy": 88,
+      "heat": 0,
+      "wins": 1,
+      "losses": 0,
+      "attributes": {
+        "intelligence": 7.9,
+        "strength": 11,
+        "charisma": 6.7,
+        "resistance": 7
+      },
+      "active_ms": 239062,
+      "session_ms": 119499,
+      "total_active_ms": 239062,
+      "sessions": 2,
+      "wall_ms": 1393736,
+      "milestones": {
+        "2": {
+          "at": "2026-11-05T06:52:43.296Z",
+          "wall_ms": 217433,
+          "active_ms": 192965
+        }
+      },
+      "actions": {
+        "conquista": 1,
+        "habilidade": 1,
+        "missoes": 1,
+        "arena": 1,
+        "turno_arena": 4
+      },
+      "delta_xp": 50
+    },
+    {
+      "engine_sha256": "cbae694a4b2097241d2400dac7b8a3f190628d9c6c2ec0e823fbd1191ce6c3a4",
+      "bot": "BOT QA 09",
+      "intelligence": 0.93,
+      "xp": 140,
+      "level": 1,
+      "rank": 2,
+      "money": 1187,
+      "bank": 0,
+      "respect": 124,
+      "energy": 79,
+      "heat": 0,
+      "wins": 1,
+      "losses": 2,
+      "attributes": {
+        "intelligence": 7.8,
+        "strength": 11,
+        "charisma": 6.8,
+        "resistance": 7
+      },
+      "active_ms": 239061,
+      "session_ms": 119498,
+      "total_active_ms": 239061,
+      "sessions": 2,
+      "wall_ms": 1382252,
+      "milestones": {},
+      "actions": {
+        "aula_pocket": 1,
+        "descanso": 1,
+        "arena": 1,
+        "turno_arena": 5
+      },
+      "delta_xp": 0
+    },
+    {
+      "engine_sha256": "cbae694a4b2097241d2400dac7b8a3f190628d9c6c2ec0e823fbd1191ce6c3a4",
+      "bot": "BOT QA 10",
+      "intelligence": 0.45,
+      "xp": 243,
+      "level": 2,
+      "rank": 2,
+      "money": 1238,
+      "bank": 0,
+      "respect": 151,
+      "energy": 90,
+      "heat": 1,
+      "wins": 2,
+      "losses": 0,
+      "attributes": {
+        "intelligence": 8.6,
+        "strength": 11.4,
+        "charisma": 9.5,
+        "resistance": 7.4
+      },
+      "active_ms": 239065,
+      "session_ms": 119496,
+      "total_active_ms": 239065,
+      "sessions": 2,
+      "wall_ms": 1369898,
+      "milestones": {
+        "2": {
+          "at": "2026-11-05T07:12:20.115Z",
+          "active_ms": 239065,
+          "wall_ms": 1369784
+        }
+      },
+      "actions": {
+        "turno_arena": 2,
+        "equipamento": 2,
+        "missoes": 1,
+        "treino": 1,
+        "aula_pocket": 1,
+        "habilidade": 1
+      },
+      "delta_xp": 103
+    }
+  ],
+  "matches": [
+    {
+      "id": "491694de-667b-48e9-9ff3-418c3285596a",
+      "state": "finished",
+      "round": 5,
+      "score1": 57,
+      "score2": 54
+    },
+    {
+      "id": "602cf43b-7c4a-473d-b9db-2f47e68db166",
+      "state": "finished",
+      "round": 5,
+      "score1": 59,
+      "score2": 63
+    },
+    {
+      "id": "2444e9c5-7a28-4d2d-8ff2-37f5587d952b",
+      "state": "finished",
+      "round": 5,
+      "score1": 52,
+      "score2": 59
+    },
+    {
+      "id": "f1914db1-f970-4330-b079-12618d9063fd",
+      "state": "finished",
+      "round": 5,
+      "score1": 66,
+      "score2": 63
+    },
+    {
+      "id": "326aafe0-5bc4-4366-9e8b-56e8dcca9a06",
+      "state": "finished",
+      "round": 5,
+      "score1": 61,
+      "score2": 59
+    }
+  ],
+  "errors": [],
+  "finished_at": "2026-11-05T07:12:36.424Z",
+  "activation": {
+    "scheduled": true,
+    "cron": "17 * * * *",
+    "session_seconds": 120,
+    "run_id": 41985293146,
+    "run_url": "https://github.com/fabiorodrigospt-coder/mestre-da-educacao/actions/runs/41985293146",
+    "trigger": "workflow_dispatch",
+    "conclusion": "success",
+    "artifact_id": 13395608283
+  },
+  "platform_notices": [
+    "Actions checkout/upload-artifact v4 target deprecated Node20; GitHub successfully forced Node24 for this run.",
+    "ubuntu-latest migration notice was emitted."
+  ]
+}
