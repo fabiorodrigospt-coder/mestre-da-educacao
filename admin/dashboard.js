@@ -7,6 +7,7 @@
   const BASE = String(cfg.supabaseUrl || '').replace(/\/$/, '');
   const KEY = String(cfg.supabasePublishableKey || '');
   const AUTH_KEY = 'mestre_admin_session_tab_v1';
+  const GAME_AUTH_KEY = 'mestre_educacao_auth_session_v1';
   window.GameRankingClient={canPlay:()=>!!session?.access_token,rankings:data=>api('/rest/v1/rpc/mestre_rankings','POST',data)};
   document.getElementById('adminRankingBtn').addEventListener('click',()=>window.GameRanking?.open());
   const $ = id => document.getElementById(id);
@@ -65,11 +66,46 @@
   }
   async function refresh(){
     if(!session?.refresh_token) throw new Error('Sessão expirada. Faça login novamente.');
-    const next=await api('/auth/v1/token?grant_type=refresh_token','POST',{refresh_token:session.refresh_token},false);
+    const oldRefreshToken=session.refresh_token;
+    const next=await api('/auth/v1/token?grant_type=refresh_token','POST',{refresh_token:oldRefreshToken},false);
     if(!next?.access_token) throw new Error('Falha ao renovar a sessão.');
     session={...session,access_token:next.access_token,refresh_token:next.refresh_token||session.refresh_token,
       expires_at:Date.now()+Number(next.expires_in||3600)*1000};
+    // Se o painel estiver usando a sessão do jogo, sincronizar o refresh token rotacionado.
+    // Não sobrescrever outra sessão ou atualização mais recente do jogo.
+    if(session.source==='game'){
+      try{
+        const saved=JSON.parse(localStorage.getItem(GAME_AUTH_KEY)||'null');
+        if(saved?.user?.id===session.user_id && saved.refresh_token===oldRefreshToken){
+          localStorage.setItem(GAME_AUTH_KEY,JSON.stringify({...saved,
+            access_token:session.access_token,refresh_token:session.refresh_token,expires_at:session.expires_at}));
+        }
+      }catch(_){}
+    }
     saveSession();
+  }
+  async function signInWithGameSession(){
+    const btn=$('gameSessionLogin');
+    btn.disabled=true;
+    loginReport('Verificando sua sessão do jogo e as permissões administrativas...');
+    try{
+      let game=null;
+      try{game=JSON.parse(localStorage.getItem(GAME_AUTH_KEY)||'null');}catch(_){}
+      if(!game?.user?.id || !game?.access_token)
+        throw new Error('Não encontrei uma sessão do jogo neste navegador. Abra o jogo, entre na sua conta e volte aqui.');
+      session={access_token:game.access_token,refresh_token:game.refresh_token||'',
+        expires_at:Number(game.expires_at||0),user_id:game.user.id,source:'game'};
+      // A identidade é confirmada no Auth server, nunca apenas pelo conteúdo local.
+      const user=await api('/auth/v1/user','GET');
+      if(user?.id!==session.user_id) throw new Error('Sessão inconsistente. Atualize o jogo e tente novamente.');
+      // Esta RPC valida a inclusão em private.mestre_educacao_admins no servidor.
+      const result=await api('/rest/v1/rpc/mestre_admin_dashboard','POST',{p_search:'',p_limit:60});
+      saveSession();showLoggedIn(true);renderDashboard(result);
+      loginReport('');
+    }catch(err){
+      session=null;saveSession();
+      loginReport('Não foi possível acessar com a sessão do jogo: '+err.message);
+    }finally{btn.disabled=false;}
   }
   async function signIn(e) {
     e.preventDefault();
@@ -80,7 +116,7 @@
         {email:$('email').value.trim().toLowerCase(),password:$('password').value},false);
       if(!auth?.access_token || !auth?.user?.id) throw new Error('Autenticação não concluída.');
       session={access_token:auth.access_token,refresh_token:auth.refresh_token,
-        expires_at:Date.now()+Number(auth.expires_in||3600)*1000,user_id:auth.user.id};
+        expires_at:Date.now()+Number(auth.expires_in||3600)*1000,user_id:auth.user.id,source:'password'};
       $('password').value='';
       // A consulta exige que o usuário conste da tabela privada de administradores.
       const result=await api('/rest/v1/rpc/mestre_admin_dashboard','POST',{p_search:'',p_limit:60});
@@ -88,14 +124,17 @@
       loginReport('');
     }catch(err){
       session=null;saveSession();
-      loginReport('Acesso recusado: '+err.message+'. Verifique se sua conta recebeu permissão administrativa.');
+      loginReport(/invalid login credentials/i.test(err.message)
+        ? 'O Supabase recusou o e-mail e a senha. Se você já está conectado no jogo, use "Entrar com a sessão do jogo".'
+        : 'Acesso recusado: '+err.message);
     }finally{btn.disabled=false;}
   }
   async function signOut(){
     const token=session?.access_token;
+    const sharedGameSession=session?.source==='game';
     session=null;saveSession();showLoggedIn(false);selected=null;players=[];
     $('activityPanel').hidden=true;activityGeneration++;$('activityEvents').replaceChildren();$('activityPvp').replaceChildren();$('loginForm').reset();loginReport('Sessão administrativa encerrada.');
-    if(token) fetch(BASE+'/auth/v1/logout',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+token}}).catch(()=>{});
+    if(token && !sharedGameSession) fetch(BASE+'/auth/v1/logout',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+token}}).catch(()=>{});
   }
   function make(tag,className='',value=''){
     const el=document.createElement(tag);
@@ -314,6 +353,7 @@
   $('activityMore').addEventListener('click',()=>showActivity(true));
   $('closeActivity').addEventListener('click',()=>{$('activityPanel').hidden=true;activityGeneration++;});
   $('loginForm').addEventListener('submit',signIn);
+  $('gameSessionLogin')?.addEventListener('click',signInWithGameSession);
   $('logout').addEventListener('click',signOut);
   $('refreshBtn').addEventListener('click',()=>loadDashboard());
   $('searchBtn').addEventListener('click',()=>{currentSearch=$('search').value.trim();loadDashboard(false);});
