@@ -14,7 +14,7 @@
 <p id="loginMessage" role="alert"></p></section>
 <main id="dashboard" hidden>
 <div id="notice" class="notice" role="status" aria-live="polite">Conectado. Selecione um jogador.</div>
-<div class="tabs"><button class="small" id="refreshBtn">Atualizar dados</button><button class="small" id="historyBtn">Ver auditoria geral</button><a href="./index.html" style="color:var(--blue);align-self:center">Ir para o jogo</a></div>
+<div class="tabs"><button class="small" id="refreshBtn">Atualizar dados</button><button class="small" id="botsBtn">Bots e evolução</button><button class="small" id="historyBtn">Ver auditoria geral</button><a href="./index.html" style="color:var(--blue);align-self:center">Ir para o jogo</a></div>
 <div class="stats"><div class="stat"><small>Contas</small><strong id="totalCount">—</strong></div><div class="stat"><small>Ativas</small><strong id="activeCount">—</strong></div><div class="stat"><small>Bloqueadas</small><strong id="blockedCount">—</strong></div></div>
 <div class="dashboard">
 <section class="panel"><h2>Jogadores</h2><label for="search">Buscar por nome, e-mail ou ID</label><div class="search"><input id="search" placeholder="Procurar jogador..."><button id="searchBtn" class="small">Buscar</button></div><div class="players" id="players"></div><p class="muted" id="emptyPlayers"></p></section>
@@ -44,10 +44,12 @@
 <p id="moderationInfo" class="muted"></p>
 </section>
 </div>
+<section class="panel" id="botPanel" hidden><div class="headingline"><h2>Bots QA · Evolução</h2><button id="closeBots" class="small">Fechar</button></div><div id="botMetrics"></div></section>
 <section class="panel" id="historyPanel" hidden><div class="headingline"><h2>Histórico administrativo</h2><button class="small" id="closeHistory">Fechar</button></div><div id="history"></div></section>
 <section class="panel" id="activityPanel" hidden><div class="headingline"><h2 id="activityTitle">Atividade do jogador</h2><button id="closeActivity" class="small">Fechar</button></div><p id="activityNotice" class="muted"></p><div id="activitySummary" class="notice"></div><div class="actions"><button id="activityRefresh">Atualizar histórico</button><button id="activityMore" disabled>Carregar anteriores</button></div><div id="activityPvp"></div><div id="activityEvents"></div></section>
 <p class="foot">Painel protegido por permissões no servidor. A URL por si só não concede acesso. Não é adequado para uma competição anti-trapaça sem validação de jogadas no servidor.</p>
 </main>
 </div>
-<script src="./config.js"></script><script src="./admin/dashboard.js?v=suporte5"></script>
+<script src="./config.js"></script><script src="./admin/dashboard.js?v=bots1"></script>
 </body></html>
+

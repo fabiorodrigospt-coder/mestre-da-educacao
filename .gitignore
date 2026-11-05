@@ -1,0 +1,4 @@
+.bots-credentials.json
+.env*
+bot-reports/
+node_modules/

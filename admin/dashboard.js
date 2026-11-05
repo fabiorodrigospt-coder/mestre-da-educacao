@@ -124,6 +124,31 @@
       else clearSelection();
     }
   }
+  async function showBots(){
+    const panel=$('botPanel');panel.hidden=false;const out=$('botMetrics');out.replaceChildren(make('p','','Carregando métricas registradas...'));
+    try{
+      const data=await api('/rest/v1/rpc/mestre_admin_dashboard','POST',{p_search:'[BOT QA]',p_limit:60});
+      const bots=data.players.filter(p=>p.display_name?.startsWith('[BOT QA]'));
+      out.replaceChildren();
+      out.append(make('p','','Sessões programadas: 2 minutos por hora. Tempo ativo difere do tempo corrido. Dados da carreira são relatos do motor; resultados PvP são validados no servidor. Ausência de erro registrado não comprova ausência de falhas.'));
+      for(const b of bots){
+        const activity=await api('/rest/v1/rpc/mestre_admin_activity','POST',{p_user_id:b.user_id,p_before:null});
+        const recent=activity.events.find(e=>e.action==='bot_session');const card=make('article','panel','');
+        card.append(make('h3','',b.display_name));
+        if(!recent)card.append(make('p','','Conta criada; primeira sessão ainda não registrada.'));
+        else{const d=recent.details;card.append(make('p','',`Decisão: ${Math.round(d.intelligence*100)}% · XP ${d.xp} · Nível ${d.level} · Patente ${d.rank}`));
+          card.append(make('p','',`Sessões: ${d.sessions} · Tempo ativo: ${(d.total_active_ms/60000).toFixed(1)} min · Tempo corrido: ${(d.wall_ms/3600000).toFixed(1)} h`));
+          card.append(make('p','',`Aulas: ${d.wins} concluídas / ${d.losses} falhas · XP nesta sessão: ${d.delta_xp} · Energia ${Math.floor(d.energy)} · Estresse ${d.heat}`));
+          card.append(make('small','',`Último registro: ${date(recent.received_at)} · Motor ${String(d.engine_sha256||'').slice(0,12)}`));
+          for(const [level,m] of Object.entries(d.milestones||{}))card.append(make('p','',`Nível ${level}: ${(m.active_ms/60000).toFixed(1)} min ativos / ${(m.wall_ms/3600000).toFixed(1)} h corridas`));
+        }
+        const button=make('button','small','Abrir ficha e histórico');button.onclick=()=>pickPlayer(b.user_id);card.append(button);out.append(card);
+      }
+      if(!bots.length)out.append(make('p','','Nenhuma conta BOT QA cadastrada.'));
+    }catch{out.replaceChildren(make('p','error','Não foi possível carregar as métricas. Verifique a sessão administrativa.'));}
+  }
+  $('botsBtn').addEventListener('click',showBots);
+  $('closeBots').addEventListener('click',()=>{$('botPanel').hidden=true;});
   function clearSelection(){
     selected=null;$('activityBtn').disabled=true;$('activityPanel').hidden=true;activityGeneration++;$('selectedName').textContent='';$('selectedId').textContent='';
     $('lastSeen').textContent='';$('editForm').hidden=true;
@@ -308,4 +333,5 @@
     });
   }
 })();
+
 

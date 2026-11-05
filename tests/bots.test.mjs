@@ -1,0 +1,9 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {createEngine,debateChoice} from '../bots/engine.mjs';
+const start=Date.parse('2026-11-05T12:00:00Z');
+test('ten isolated real career states with distinct cognition',()=>{const bots=Array.from({length:10},()=>createEngine(null,{now:()=>start}));bots[0].step(.9);assert.equal(bots[1].metrics().xp,0);assert.ok(bots[0].metrics().xp>0);});
+test('career actions obey energy and actual timer limits',()=>{let time=start;const e=createEngine(null,{now:()=>time,random:()=>.3});for(let i=0;i<600;i++){time+=1000;e.tick();if(i%15===0)e.step(.8);const m=e.metrics();assert.ok(m.energy>=0&&m.energy<=100);assert.ok(m.money>=0&&m.heat<=100);}assert.ok(e.metrics().wins>0);assert.ok(e.metrics().active_ms>=590000);});
+test('normalization preserves cloud progress and enforces state version',()=>{const e=createEngine(null,{now:()=>start});e.step(.8);const saved=e.state();const next=createEngine(saved,{now:()=>start});assert.equal(next.metrics().xp,e.metrics().xp);assert.throws(()=>createEngine({version:999}));});
+test('offline settlement does not pretend offline time is active',()=>{let time=start;const e=createEngine(null,{now:()=>time});time+=86400000;e.tick();assert.equal(e.metrics().active_ms,0);assert.equal(e.metrics().xp,0);});
+test('debate policy respects focus and cognition',()=>{assert.equal(debateChoice(5,.9,'argumentar'),'preparar');assert.equal(debateChoice(100,.9,'argumentar',()=>.1),'contra');assert.equal(debateChoice(100,.9,'contra',()=>.1),'improvisar');});
+test('same seeded scenario is reproducible',()=>{function replay(){let t=start;const e=createEngine(null,{now:()=>t,random:()=>.4});for(let i=0;i<100;i++){t+=1000;e.tick();if(i%15===0)e.step(.5);}return e.metrics();}assert.deepEqual(replay(),replay());});

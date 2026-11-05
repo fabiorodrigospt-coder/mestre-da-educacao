@@ -1,0 +1,32 @@
+name: Bots QA - Mestre da Educacao
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: mestre-bots-qa
+  cancel-in-progress: false
+jobs:
+  play:
+    if: vars.MESTRE_BOTS_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validar motor
+        run: node --test tests/bots.test.mjs
+      - name: Jogar e registrar metricas
+        env:
+          MESTRE_BOT_ACCOUNTS: ${{ secrets.MESTRE_BOT_ACCOUNTS }}
+          BOT_SESSION_SECONDS: '120'
+        run: node bots/run.mjs
+      - name: Preservar relatorio
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bots-qa-${{ github.run_id }}
+          path: bot-reports/
+          retention-days: 30
+          if-no-files-found: ignore
