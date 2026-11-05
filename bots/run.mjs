@@ -43,7 +43,7 @@ try{
   if(c.failed)continue;
   try{
    const metrics=c.engine.metrics(),elapsed=Date.now()-start;
-   c.meta.sessions++;c.meta.active_ms+=Math.max(0,metrics.active_ms-c.before.active_ms);
+   c.meta.sessions++;c.meta.active_ms=metrics.active_ms;
    const priorLevel=c.before.level;for(let l=priorLevel+1;l<=metrics.level;l++)c.meta.milestones[l]={at:new Date().toISOString(),active_ms:c.meta.active_ms,wall_ms:Date.now()-Date.parse(c.meta.created_at)};
    const state=c.engine.state();state.bot_test=c.meta;
    const revision=c.row?.revision||0;
@@ -51,7 +51,7 @@ try{
    const body={game_state:state,revision:revision+1,...(revision?{ack_admin_revision:c.row.admin_revision||0,updated_at:new Date().toISOString()}:{user_id:c.id})};
    const saved=await api(path,body,c.token,revision?'PATCH':'POST',{Prefer:'return=representation'});
    if(saved.length!==1)throw Error('SAVE_CONFLICT');
-   const summary={engine_sha256:report.engine_sha256,bot:c.label,intelligence:c.intelligence,...metrics,session_ms:elapsed,total_active_ms:c.meta.active_ms,sessions:c.meta.sessions,wall_ms:Date.now()-Date.parse(c.meta.created_at),milestones:c.meta.milestones,actions:c.actions,delta_xp:metrics.xp-c.before.xp};
+   const summary={engine_sha256:report.engine_sha256,bot:c.label,intelligence:c.intelligence,...metrics,session_ms:Math.max(0,metrics.active_ms-c.before.active_ms),total_active_ms:c.meta.active_ms,sessions:c.meta.sessions,wall_ms:Date.now()-Date.parse(c.meta.created_at),milestones:c.meta.milestones,actions:c.actions,delta_xp:metrics.xp-c.before.xp};
    report.bots.push(summary);
    await api('/rest/v1/rpc/mestre_activity_submit',{p_events:[{id:randomUUID(),at:new Date().toISOString(),action:'bot_session',label:c.label+' · evolução automática',details:summary}]},c.token);
   }catch{error(c.label+'_SAVE_OR_TELEMETRY_FAILED');}
