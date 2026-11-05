@@ -11,7 +11,7 @@
 </head><body><div class="wrap">
 <header><div><div class="eyebrow">MESTRE DA EDUCAÇÃO · ACESSO RESTRITO</div><h1>Central Administrativa</h1><small>Moderação, recursos, atributos e auditoria</small></div><button id="logout" hidden>Sair</button></header>
 <section class="panel auth" id="loginPanel"><h2>Autenticação de administrador</h2><p>Use sua conta do jogo previamente autorizada como administradora no Supabase. A senha não é gravada nesta página.</p>
-<form id="loginForm"><label for="email">E-mail</label><input id="email" type="email" required autocomplete="username"><label for="password">Senha</label><input id="password" type="password" required autocomplete="current-password"><div class="actions"><button class="primary" type="submit">Entrar no painel</button></div></form>
+<form id="loginForm"><label for="email">E-mail</label><input id="email" type="email" required autocomplete="username"><label for="password">Senha</label><input id="password" type="password" required autocomplete="current-password"><div class="actions"><button class="primary" type="submit">Entrar no painel</button><button type="button" id="gameSessionLogin">Entrar com a sessão do jogo</button></div></form><p class="muted">Se você já está conectado ao jogo neste navegador, use o segundo botão. Sua autorização de administrador será verificada no servidor.</p>
 <p id="loginMessage" role="alert"></p></section>
 <main id="dashboard" hidden>
 <div id="notice" class="notice" role="status" aria-live="polite">Conectado. Selecione um jogador.</div>
@@ -51,6 +51,6 @@
 <p class="foot">Painel protegido por permissões no servidor. A URL por si só não concede acesso. Não é adequado para uma competição anti-trapaça sem validação de jogadas no servidor.</p>
 </main>
 </div>
-<script src="./config.js"></script><script src="./admin/dashboard.js?v=ranking1"></script><script src="./rankings.js?v=1"></script>
+<script src="./config.js"></script><script src="./admin/dashboard.js?v=admin-session2"></script><script src="./rankings.js?v=1"></script>
 </body></html>
 
