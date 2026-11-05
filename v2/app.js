@@ -177,7 +177,7 @@ function moveToward(p,x,z,dt,speed){
  p.root.position.addScaledVector(diff,step);p.root.rotation.y=Math.atan2(diff.x,diff.z);
  return true;
 }
-function keepInBounds(p){p.position.x=THREE.MathUtils.clamp(p.position.x,-12.6,12.5);p.position.z=THREE.MathUtils.clamp(p.position.z,-8.2,10.0);}
+function keepInBounds(position){position.x=THREE.MathUtils.clamp(position.x,-12.6,12.5);position.z=THREE.MathUtils.clamp(position.z,-8.2,10.0);}
 function animatePerson(p,t,speedFactor){
  const swing=Math.sin(t*9+p.root.position.x)*.2*speedFactor;
  p.legL.rotation.x=swing;p.legR.rotation.x=-swing;
