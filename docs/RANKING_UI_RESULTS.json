@@ -1,0 +1,63 @@
+{
+  "executed_at": "2026-11-05T08:16:00Z",
+  "source_commit": "05aaded1bbb11c65c878a401bc1b2eb5e276aa60",
+  "github_pages_run": 41992504526,
+  "deployment": "success",
+  "ui_entry_tested": "existing authenticated administration session, shared ranking component",
+  "main_game_login_e2e_tested": false,
+  "checks": {
+    "overall_ranking_visible": true,
+    "human_only_filter": 10,
+    "simulated_only_filter": 10,
+    "all_simulated_labels_visible": true,
+    "score_breakdown_visible": true,
+    "escape_closes_dialog": true,
+    "reopen_preserves_access": true
+  },
+  "responsive": [
+    {
+      "requested_width": 360,
+      "dialog_client_width": 292,
+      "dialog_scroll_width": 292,
+      "overflow": false,
+      "min_button_height": 44
+    },
+    {
+      "requested_width": 390,
+      "dialog_client_width": 322,
+      "dialog_scroll_width": 322,
+      "overflow": false,
+      "min_button_height": 44
+    },
+    {
+      "requested_width": 430,
+      "dialog_client_width": 362,
+      "dialog_scroll_width": 362,
+      "overflow": false,
+      "min_button_height": 44
+    },
+    {
+      "requested_width": 768,
+      "dialog_client_width": 700,
+      "dialog_scroll_width": 700,
+      "overflow": false,
+      "min_button_height": 44
+    },
+    {
+      "requested_width": 1440,
+      "dialog_client_width": 983,
+      "dialog_scroll_width": 983,
+      "overflow": false,
+      "min_button_height": 44
+    }
+  ],
+  "security": {
+    "registry_rls": true,
+    "registry_count": 10,
+    "anonymous_public_rpc": false,
+    "player_registry_access": false,
+    "player_numeric_helper": false,
+    "profiles_preserved": 22,
+    "saves_preserved": 21
+  }
+}
