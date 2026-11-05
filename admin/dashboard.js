@@ -7,6 +7,8 @@
   const BASE = String(cfg.supabaseUrl || '').replace(/\/$/, '');
   const KEY = String(cfg.supabasePublishableKey || '');
   const AUTH_KEY = 'mestre_admin_session_tab_v1';
+  window.GameRankingClient={canPlay:()=>!!session?.access_token,rankings:data=>api('/rest/v1/rpc/mestre_rankings','POST',data)};
+  document.getElementById('adminRankingBtn').addEventListener('click',()=>window.GameRanking?.open());
   const $ = id => document.getElementById(id);
   const elems = ['money','bank','respect','energy','xp','heat','intelligence','strength','charisma','resistance','arena_rating'];
   const attributeNames = new Set(['intelligence','strength','charisma','resistance']);
@@ -127,8 +129,8 @@
   async function showBots(){
     const panel=$('botPanel');panel.hidden=false;const out=$('botMetrics');out.replaceChildren(make('p','','Carregando métricas registradas...'));
     try{
-      const data=await api('/rest/v1/rpc/mestre_admin_dashboard','POST',{p_search:'[BOT QA]',p_limit:60});
-      const bots=data.players.filter(p=>p.display_name?.startsWith('[BOT QA]'));
+      const data=await api('/rest/v1/rpc/mestre_rankings','POST',{p_category:'geral',p_cohort:'simulated',p_offset:0,p_limit:100});
+      const bots=data.top;
       out.replaceChildren();
       out.append(make('p','','Sessões programadas: 2 minutos por hora. Tempo ativo difere do tempo corrido. Dados da carreira são relatos do motor; resultados PvP são validados no servidor. Ausência de erro registrado não comprova ausência de falhas.'));
       for(const b of bots){

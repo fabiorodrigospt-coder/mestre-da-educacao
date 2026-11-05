@@ -1,12 +1,12 @@
 # Bots QA — execução e limites
 
 ## Operação
-- Dez identidades `[BOT QA] 01` a `[BOT QA] 10`, exclusivas do projeto `wsxmrysizwetxxshxwan`.
+- Dez identidades de QA com nomes fictícios; no ranking aparecem identificadas como Simulado, exclusivas do projeto `wsxmrysizwetxxshxwan`.
 - Carreira executa as funções do `index.html` versionado, em Node VM, substituindo somente DOM, apresentação e armazenamento local. Não duplica fórmulas de recompensa.
 - Inteligência de decisão sorteada por conta (20%–95%); não altera atributos iniciais, dinheiro, energia ou XP. Não usa modelos de IA pagos.
 - Sessões reais de 120 segundos a cada hora, minuto 17 UTC. Dez motores simultâneos; decisões a cada 15 segundos; timers a cada segundo. Não equivale a jogar 24 horas por dia. GitHub pode atrasar execuções.
 - Interação de carreira: aulas, trabalho, missões, recompensas, habilidades, materiais, cafés, negócios, colegas/projetos, profissões, escolas, chefes, arena local, comércio e leilão, conforme requisitos e política aleatória. Nem todo recurso é alcançado imediatamente.
-- Cinco debates PvP entre pares de bots por execução; chamadas usam autenticação individual e RPC oficial. Contas humanas nunca são escolhidas pelo agendador. Partidas aparecem identificadas pelos nomes BOT QA e podem pontuar no ranking existente.
+- Cinco debates PvP entre pares de bots por execução; chamadas usam autenticação individual e RPC oficial. Contas humanas nunca são escolhidas pelo agendador. Partidas usam nomes fictícios de personagens simulados. O ranking geral permite separar jogadores reais de simulados; confrontos entre coortes não pontuam na parcela PvP do ranking geral.
 - Quiz, instalação PWA e interface visual ainda não são cobertos por esta política. Os testes do motor não substituem testes de interface nem reproduzem comportamento humano.
 
 ## Ativação

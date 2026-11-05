@@ -437,8 +437,9 @@
   }
   setInterval(flushActivity,10000);
   window.addEventListener('online',flushActivity);
-  window.GameCloud = { canPlay:()=>ready, loadLocalState, saveLocal, sync:manualSync, trackActivity, pvp:async(action,data={})=>{if(!ready||!user||!navigator.onLine)throw new Error('Entre online para jogar PvP.');return request('/rest/v1/rpc/mestre_pvp',{method:'POST',body:JSON.stringify({p_action:action,p_data:data})},true);} };
+  window.GameCloud = { rankings:async(data={})=>{if(!ready||!user||!navigator.onLine)throw new Error('Entre online para ver o ranking.');return request('/rest/v1/rpc/mestre_rankings',{method:'POST',body:JSON.stringify(data)},true);}, canPlay:()=>ready, loadLocalState, saveLocal, sync:manualSync, trackActivity, pvp:async(action,data={})=>{if(!ready||!user||!navigator.onLine)throw new Error('Entre online para jogar PvP.');return request('/rest/v1/rpc/mestre_pvp',{method:'POST',body:JSON.stringify({p_action:action,p_data:data})},true);} };
   boot().catch(err=>{message('Não foi possível iniciar a autenticação: '+err.message,true);status('Falha de inicialização; seus saves locais não foram apagados.');});
 })();
+
 
 

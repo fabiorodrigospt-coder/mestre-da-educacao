@@ -1,0 +1,31 @@
+{
+  "project_ref": "wsxmrysizwetxxshxwan",
+  "executed_at": "2026-11-05T08:07:14.397Z",
+  "read_only": true,
+  "results": [
+    {
+      "name": "ranking geral soma parcelas reais do snapshot, sem expor saves",
+      "passed": true
+    },
+    {
+      "name": "dez simulados com nomes fictícios e filtro separado de humanos",
+      "passed": true
+    },
+    {
+      "name": "21 categorias retornam classificação ordenada no servidor",
+      "passed": true
+    },
+    {
+      "name": "minha posição persiste fora da página atual",
+      "passed": true
+    },
+    {
+      "name": "visitante e filtro inválido são negados",
+      "passed": true
+    },
+    {
+      "name": "registro privado de simulados não é exposto pela API",
+      "passed": true
+    }
+  ]
+}
